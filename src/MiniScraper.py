@@ -9,12 +9,12 @@ from System.Collections.Generic import *
 
 from collections import OrderedDict
 
-#@Name MangaUpdates Scrapper
+#@Name MangaUpdates Scraper
 #@Hook Books, Editor
 #@Enabled false
 #@Image manga-updates.png
 #@Description Scraps MangaUpdates
-def MangaUpdateScrapper(books):
+def MangaUpdateScraper(books):
     pSeries = ""
     pURL = ""
     pGenre = ""
