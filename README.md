@@ -5,6 +5,16 @@ a mini scrapper (no gui, only fetches genres) for mangaupdates.com for use with 
 
 ----
 
+<p align="center">
+    <b><u><span style='font-size:14.0pt'>👇 Download Links 👇</span></u></b>
+</p>
+<p align="center">
+    <a href="https://github.com/maforget/ComicRack_MangaUpdateScrapper/releases/download/nightly/MangaUpdateScrapper.crplugin" alt="Nightly">
+      <img src="https://img.shields.io/github/v/release/maforget/ComicRack_MangaUpdateScrapper?include_prereleases&label=pre-release&logo=github" /></a>
+</p>
+
+----
+
 #### Check my plugins for ComicRack Community Edition:
 
 - **[Android Client](https://github.com/maforget/ComicRackKeygen/releases/tag/1.0). Includes the link to the Android Client. It still work correctly with the Community Edition & still works with the Latest Android 14 (although for 14+ you will need to install via ADB). Also includes stuff like a Keygen & a Support Pack for the Original ComicRack, but those aren't required anymore with the Community Edition anymore.**
