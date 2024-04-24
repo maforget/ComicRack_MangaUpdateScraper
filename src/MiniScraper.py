@@ -67,7 +67,7 @@ def MangaUpdateSearch(text):
             # print("    url: " + url)
             # print("    genre: " + genre)
 
-            if name:
+            if name and not name.lower().endswith("(novel)"):
                 d[name] = (url, genre)
     return d
 
