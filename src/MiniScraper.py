@@ -126,6 +126,9 @@ def MangaUpdateAPISearch(series):
         "filter_types": [
             "Novel",
             "Doujinshi"
+        ],
+        "exclude_genre": [
+            "Hentai"
         ]
     }
     
