@@ -52,7 +52,7 @@ def MangaUpdateScraper(books):
             json_data = MangaUpdateAPISearch(book.Series)
             data = []
             if json_data and len(json_data['results']) > 0:
-                data = [item for item in json_data['results'] if item.get('hit_title') == book.Series]
+                data = [item for item in json_data['results'] if item.get('hit_title').lower() == book.Series.lower()]
                 #returns the 1st one, if the book.Series isn't found in the page.
                 data = data[0] if data and len(data) > 0 else json_data['results'][0] # TODO: add a form for selection
             if data:
@@ -66,7 +66,7 @@ def MangaUpdateScraper(books):
                 cDescription = pDescription = strip_tags(WebUtility.HtmlDecode(record['description']))
 
                 # For Debug
-                serie = book.Series if name == book.Series else name
+                serie = book.Series if name.lower() == book.Series.lower() else name
                 if DEBUG_LEVEL >= 1: print("--> id: " + str(cID))
                 if DEBUG_LEVEL >= 1: print("--> series: " + serie)
                 if DEBUG_LEVEL >= 1: print("--> url: " + cURL)
