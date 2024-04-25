@@ -18,7 +18,7 @@ def post(url, json_data):
     client = HttpClient()
 
     # Serialize JSON data
-    json_content = json.dumps(json_data)
+    json_content = json.dumps(json_data, ensure_ascii=False)
     # Create StringContent with JSON data
     content = StringContent(json_content)
     # Set content type header
