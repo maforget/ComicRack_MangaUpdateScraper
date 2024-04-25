@@ -170,6 +170,10 @@ def toString(array, key):
     values = [item[key] for item in array]
     return ', '.join(values)
 
+
+"""
+Removes html tags from text.
+"""
 def strip_tags(html):
     try:
         return re.sub("<[^<>]+?>", "", html, re.IGNORECASE | re.DOTALL | re.MULTILINE)
