@@ -9,7 +9,7 @@ from System.Net import WebUtility
 from System.Collections.Generic import *
 
 
-DEBUG_LEVEL = 2 #0 - Disable DEBUG #1 = fields only, #2 = Include raw json
+DEBUG_LEVEL = 1 #0 - Disable DEBUG #1 = fields only, #2 = Include raw json
 separator = "=" * 30
 long_separator = "-" * 60
 
