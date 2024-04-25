@@ -68,21 +68,21 @@ def MangaUpdateScraper(books):
                 # For Debug
                 serie = book.Series if name.lower() == book.Series.lower() else name
                 if DEBUG_LEVEL >= 1: print("--> id: " + str(cID))
-                if DEBUG_LEVEL >= 1: print("--> series: " + serie)
-                if DEBUG_LEVEL >= 1: print("--> url: " + cURL)
-                if DEBUG_LEVEL >= 1: print("--> genre: " + cGenre)
-                if DEBUG_LEVEL >= 1: print("--> description: " + cDescription)
+                if DEBUG_LEVEL >= 1: print("--> series: " + str(serie))
+                if DEBUG_LEVEL >= 1: print("--> url: " + str(cURL))
+                if DEBUG_LEVEL >= 1: print("--> genre: " + str(cGenre))
+                if DEBUG_LEVEL >= 1: print("--> description: " + str(cDescription))
 
                 if GET_INFO_FROM_SERIES_PAGE:
                     series_info = MangaUpdateAPISeries(cID)
                     if series_info and len(series_info) > 0:
                         cAuthors_data = [item for item in series_info['authors'] if item.get('type') == "Author"]
                         cAuthor = pAuthor = WebUtility.HtmlDecode(toString(cAuthors_data, 'name'))
-                        if DEBUG_LEVEL >= 1: print("--> Author: " + cAuthor)
+                        if DEBUG_LEVEL >= 1: print("--> Author: " + str(cAuthor))
 
                         cArtist_data = [item for item in series_info['authors'] if item.get('type') == "Artist"]
                         cArtist = pArtist = WebUtility.HtmlDecode(toString(cArtist_data, 'name'))
-                        if DEBUG_LEVEL >= 1: print("--> Artist: " + cArtist)
+                        if DEBUG_LEVEL >= 1: print("--> Artist: " + str(cArtist))
 
 
         if cGenre:
