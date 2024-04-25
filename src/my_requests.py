@@ -1,4 +1,7 @@
-import clr, json, System
+import clr, sys, os, System
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), 'json.zip'))
+import json
+
 
 clr.AddReference('System')
 from System import Uri
