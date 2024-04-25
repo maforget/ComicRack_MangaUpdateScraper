@@ -86,6 +86,9 @@ def MangaUpdateScraper(books):
         if cGenre:
             book.Genre = cGenre
 
+        # if cID:
+        #     book.SetCustomValue('mangaupdates_seriesid', str(cID))
+
         # if cDescription:
         #     book.Summary = cDescription
 
