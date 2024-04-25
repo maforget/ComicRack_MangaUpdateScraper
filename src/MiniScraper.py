@@ -124,7 +124,8 @@ def MangaUpdateAPISearch(series):
         "perpage": 5,
         "stype": "title",
         "filter_types": [
-            "Novel"
+            "Novel",
+            "Doujinshi"
         ]
     }
     
