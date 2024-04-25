@@ -10,6 +10,7 @@ from System.Collections.Generic import *
 
 
 DEBUG_LEVEL = 1 #0 - Disable DEBUG #1 = fields only, #2 = Include raw json
+GET_INFO_FROM_SERIES_PAGE = False # Prevents unnecessary API calls to the serie if not in use, just fetches Writer & Penciller.
 separator = "=" * 30
 long_separator = "-" * 60
 
@@ -72,15 +73,16 @@ def MangaUpdateScraper(books):
                 if DEBUG_LEVEL >= 1: print("--> genre: " + cGenre)
                 if DEBUG_LEVEL >= 1: print("--> description: " + cDescription)
 
-                series_info = MangaUpdateAPISeries(cID)
-                if series_info and len(series_info) > 0:
-                    cAuthors_data = [item for item in series_info['authors'] if item.get('type') == "Author"]
-                    cAuthor = pAuthor = WebUtility.HtmlDecode(toString(cAuthors_data, 'name'))
-                    if DEBUG_LEVEL >= 1: print("--> Author: " + cAuthor)
+                if GET_INFO_FROM_SERIES_PAGE:
+                    series_info = MangaUpdateAPISeries(cID)
+                    if series_info and len(series_info) > 0:
+                        cAuthors_data = [item for item in series_info['authors'] if item.get('type') == "Author"]
+                        cAuthor = pAuthor = WebUtility.HtmlDecode(toString(cAuthors_data, 'name'))
+                        if DEBUG_LEVEL >= 1: print("--> Author: " + cAuthor)
 
-                    cArtist_data = [item for item in series_info['authors'] if item.get('type') == "Artist"]
-                    cArtist = pArtist = WebUtility.HtmlDecode(toString(cArtist_data, 'name'))
-                    if DEBUG_LEVEL >= 1: print("--> Artist: " + cArtist)
+                        cArtist_data = [item for item in series_info['authors'] if item.get('type') == "Artist"]
+                        cArtist = pArtist = WebUtility.HtmlDecode(toString(cArtist_data, 'name'))
+                        if DEBUG_LEVEL >= 1: print("--> Artist: " + cArtist)
 
 
         if cGenre:
@@ -106,7 +108,7 @@ def MangaUpdateScraper(books):
 
 
 """
-Searches the API the series provided, returns a json
+Searches the API for the series provided, returns a json
 """
 def MangaUpdateAPISearch(series):
     baseApiURL = "https://api.mangaupdates.com/v1"
