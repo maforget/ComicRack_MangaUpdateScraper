@@ -88,6 +88,9 @@ def MangaUpdateScraper(books):
         if cGenre:
             book.Genre = cGenre
 
+        
+        # Remove the # in front of the desired fields you want to save to ComicRack
+
         # if cID:
         #     book.SetCustomValue('mangaupdates_seriesid', str(cID))
 
@@ -96,7 +99,9 @@ def MangaUpdateScraper(books):
 
         # if cURL:
         #     book.Web = cURL
-
+        
+        # Also make sure to set GET_INFO_FROM_SERIES_PAGE = True if you want the following to be saved
+        
         # if cAuthor:
         #     book.Writer = cAuthor
 
