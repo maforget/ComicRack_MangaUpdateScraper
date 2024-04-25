@@ -1,120 +1,167 @@
-import clr, re, System
+import clr, re, my_requests
 
 clr.AddReference('System')
-clr.AddReference('System.Net')
+import System
 
-from System import Uri
-from System.Net import HttpWebRequest, Cookie, DecompressionMethods, WebUtility
+clr.AddReference('System.Net')
+from System.Net import WebUtility
+
 from System.Collections.Generic import *
 
-from collections import OrderedDict
+
+DEBUG_LEVEL = 2 #0 - Disable DEBUG #1 = fields only, #2 = Include raw json
+separator = "=" * 30
+long_separator = "-" * 60
 
 #@Name MangaUpdates Scraper
 #@Hook Books, Editor
 #@Enabled false
 #@Image manga-updates.png
-#@Description Scraps MangaUpdates
+#@Description Scraps MangaUpdates (API)
 def MangaUpdateScraper(books):
+    if DEBUG_LEVEL >= 1: print(separator + " Start " + separator)
+
     pSeries = ""
     pURL = ""
     pGenre = ""
+    pDescription = ""
+    pID = 0
+    pAuthor = ""
+    pArtist = ""
 
     for book in books:
+        if DEBUG_LEVEL >= 1: print("Processing book: " + book.Series)
         cURL = ""
         cGenre = ""
+        cDescription = ""
+        cID = 0
+        cAuthor = ""
+        cArtist = ""
 
-        #Same Series, use previous url
+        #Same Series, use previous info
         if pSeries and pSeries == book.Series:
             cURL = pURL
             cGenre = pGenre
+            cID = pID
+            cDescription = pDescription
+            cAuthor = pAuthor
+            cArtist = pArtist
+
         else:
-            d = MangaUpdateSearch(book.Series)# returns a dict with a tuple for value. First value is url, second is genre
-            tuple = ()
-            if len(d) > 0:
-                # TODO: add a form for selection, returns the 1st one, if the book.Series isn't found in the page.
-                tuple = d.get(book.Series, d.values()[0]) 
-            if tuple:
+            json_data = MangaUpdateAPISearch(book.Series)
+            data = []
+            if json_data and len(json_data['results']) > 0:
+                data = [item for item in json_data['results'] if item.get('hit_title') == book.Series]
+                #returns the 1st one, if the book.Series isn't found in the page.
+                data = data[0] if data and len(data) > 0 else json_data['results'][0] # TODO: add a form for selection
+            if data:
                 pSeries = book.Series # Set pSeries for next album
-                cURL = pURL = tuple[0]
-                cGenre = pGenre = tuple[1]
+                record = data['record']
+         
+                name = WebUtility.HtmlDecode(data['hit_title'])
+                cID = pID = record['series_id']
+                cURL = pURL = record['url']
+                cGenre = pGenre = WebUtility.HtmlDecode(toString(record['genres'], 'genre'))
+                cDescription = pDescription = strip_tags(WebUtility.HtmlDecode(record['description']))
 
                 # For Debug
-                serie = book.Series if book.Series in d else d.keys()[0]
-                print("==> series: " + serie)
-                print("    url: " + cURL)
-                print("    genre: " + cGenre)
+                serie = book.Series if name == book.Series else name
+                if DEBUG_LEVEL >= 1: print("--> id: " + str(cID))
+                if DEBUG_LEVEL >= 1: print("--> series: " + serie)
+                if DEBUG_LEVEL >= 1: print("--> url: " + cURL)
+                if DEBUG_LEVEL >= 1: print("--> genre: " + cGenre)
+                if DEBUG_LEVEL >= 1: print("--> description: " + cDescription)
+
+                series_info = MangaUpdateAPISeries(cID)
+                if series_info and len(series_info) > 0:
+                    cAuthors_data = [item for item in series_info['authors'] if item.get('type') == "Author"]
+                    cAuthor = pAuthor = WebUtility.HtmlDecode(toString(cAuthors_data, 'name'))
+                    if DEBUG_LEVEL >= 1: print("--> Author: " + cAuthor)
+
+                    cArtist_data = [item for item in series_info['authors'] if item.get('type') == "Artist"]
+                    cArtist = pArtist = WebUtility.HtmlDecode(toString(cArtist_data, 'name'))
+                    if DEBUG_LEVEL >= 1: print("--> Artist: " + cArtist)
+
 
         if cGenre:
             book.Genre = cGenre
 
+        # if cDescription:
+        #     book.Summary = cDescription
+
         # if cURL:
         #     book.Web = cURL
 
+        # if cAuthor:
+        #     book.Writer = cAuthor
 
-def MangaUpdateSearch(text):
-    d = OrderedDict()
-    baseURL = "https://www.mangaupdates.com"
-    searchURL = baseURL + "/search.html?search=" + text
-    text = _read_url(searchURL)
-    if text:
-        for regex in re.finditer(r"""<div class="[^<>]+"><a href='(?P<url>[^<>]+/series/[^<>]+)'\s+alt='Series Info'.*?>(?P<name>[^<>]+)</.+?title="(?P<genre>[^<>]+)">""", text, re.IGNORECASE | re.DOTALL):
-            url = regex.group("url").strip()
-            name = WebUtility.HtmlDecode(regex.group("name")).strip()
-            genre = WebUtility.HtmlDecode(regex.group("genre")).strip()
+        # if cArtist:
+        #     book.Penciller = cArtist
 
-            # For Debug
-            # print("==> name: " + name)
-            # print("    url: " + url)
-            # print("    genre: " + genre)
-
-            if name and not name.lower().endswith("(novel)"):
-                d[name] = (url, genre)
-    return d
+        if DEBUG_LEVEL >= 1: print(separator + " END " + separator)
 
 
-def _read_url(url):
-  
-    page = ''
-    requestUri = quote(url, safe = "%/:=&~#+$!,?;'@()*[]\"")
-    print("Reading URL: " + requestUri)
 
+"""
+Searches the API the series provided, returns a json
+"""
+def MangaUpdateAPISearch(series):
+    baseApiURL = "https://api.mangaupdates.com/v1"
+    searchApiURL = baseApiURL + "/series/search"
+    search_params = {
+        "search": series,
+        "page": 1,
+        "perpage": 5,
+        "stype": "title",
+        "filter_types": [
+            "Novel"
+        ]
+    }
+    
     try:
-        System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12
-        Req = System.Net.HttpWebRequest.Create(requestUri)
-        #Req.CookieContainer = CookieContainer
-        Req.Timeout = 15000
-        Req.UserAgent = 'Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)'
-        Req.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip
-        Req.Headers.Add('X-Powered-By', 'PHP/5.3.17')
-        Req.Referer = requestUri
-        Req.Accept = 'text/html, application/xhtml+xml, */*'
-        Req.Headers.Add('Accept-Language','en-GB,it-IT;q=0.8,it;q=0.6,en-US;q=0.4,en;q=0.2')
-        Req.KeepAlive = True
-        webresponse = Req.GetResponse()
-        a = webresponse.Cookies
-
-        # Application.DoEvents()
-
-        inStream = webresponse.GetResponseStream()        
-        encode = System.Text.Encoding.GetEncoding("utf-8")
-        ReadStream = System.IO.StreamReader(inStream, encode)   
-        page = ReadStream.ReadToEnd()
-            
+        response = my_requests.post(searchApiURL, search_params)
+        if response:
+            if DEBUG_LEVEL >= 2: print(long_separator)
+            if DEBUG_LEVEL >= 2: print(response)
+            if DEBUG_LEVEL >= 2: print(long_separator)
+            return response
+        else:
+            return None
     except Exception as e:
         print(e)
-    
-    inStream.Close()
-    webresponse.Close()
-    
-    # print(page)
-    return page
+        return None
 
 
-def quote(url, safe=''):
-    # encodedURL = Uri.EscapeUriString(url)
-    encodedURL = WebUtility.UrlEncode(url)
+"""
+Takes the series_id (int) and returns the json using the API
+"""
+def MangaUpdateAPISeries(id):
+    baseApiURL = "https://api.mangaupdates.com/v1"
+    seriesApiURL = baseApiURL + "/series/" + str(id)
     
-    for safeChar in safe:
-        encodedURL = encodedURL.Replace(Uri.HexEscape(safeChar), safeChar.ToString())
-        
-    return encodedURL
+    try:
+        response = my_requests.get(seriesApiURL)
+        if response:
+            if DEBUG_LEVEL >= 2: print(long_separator)
+            if DEBUG_LEVEL >= 2: print(response)
+            if DEBUG_LEVEL >= 2: print(long_separator)
+            return response
+        else:
+            return None
+    except Exception as e:
+        # print(e)
+        return None
+
+
+"""
+Takes an json array and a key and return it as a string comma separated
+"""
+def toString(array, key):
+    values = [item[key] for item in array]
+    return ', '.join(values)
+
+def strip_tags(html):
+    try:
+        return re.sub("<[^<>]+?>", "", html, re.IGNORECASE | re.DOTALL | re.MULTILINE)
+    except:
+        return html
