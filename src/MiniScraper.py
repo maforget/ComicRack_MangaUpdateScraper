@@ -20,8 +20,6 @@ long_separator = "-" * 60
 #@Image manga-updates.png
 #@Description Scraps MangaUpdates (API)
 def MangaUpdateScraper(books):
-    if DEBUG_LEVEL >= 1: print(separator + " Start " + separator)
-
     pSeries = ""
     pURL = ""
     pGenre = ""
@@ -48,6 +46,7 @@ def MangaUpdateScraper(books):
             cArtist = pArtist
 
         else:
+            if DEBUG_LEVEL >= 1: print(separator + " Start " + separator)
             if DEBUG_LEVEL >= 1: print("Processing book: " + book.Series)
             json_data = MangaUpdateAPISearch(book.Series)
             data = []
@@ -83,6 +82,9 @@ def MangaUpdateScraper(books):
                         cArtist_data = [item for item in series_info['authors'] if item.get('type') == "Artist"]
                         cArtist = pArtist = WebUtility.HtmlDecode(toString(cArtist_data, 'name'))
                         if DEBUG_LEVEL >= 1: print("--> Artist: " + unicode(cArtist))
+                
+            if DEBUG_LEVEL >= 1: print(separator + " END " + separator)
+
 
 
         if cGenre:
@@ -108,7 +110,6 @@ def MangaUpdateScraper(books):
         # if cArtist:
         #     book.Penciller = cArtist
 
-    if DEBUG_LEVEL >= 1: print(separator + " END " + separator)
 
 
 
