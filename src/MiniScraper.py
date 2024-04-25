@@ -31,7 +31,6 @@ def MangaUpdateScraper(books):
     pArtist = ""
 
     for book in books:
-        if DEBUG_LEVEL >= 1: print("Processing book: " + book.Series)
         cURL = ""
         cGenre = ""
         cDescription = ""
@@ -49,6 +48,7 @@ def MangaUpdateScraper(books):
             cArtist = pArtist
 
         else:
+            if DEBUG_LEVEL >= 1: print("Processing book: " + book.Series)
             json_data = MangaUpdateAPISearch(book.Series)
             data = []
             if json_data and len(json_data['results']) > 0:
@@ -108,7 +108,7 @@ def MangaUpdateScraper(books):
         # if cArtist:
         #     book.Penciller = cArtist
 
-        if DEBUG_LEVEL >= 1: print(separator + " END " + separator)
+    if DEBUG_LEVEL >= 1: print(separator + " END " + separator)
 
 
 
