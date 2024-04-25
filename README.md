@@ -1,7 +1,7 @@
 ### You should consider using [ComicRack Community Edition](https://github.com/maforget/ComicRackCE). And if you can please contribute to the project.
 
 # MangaUpdate Mini Scraper for ComicRack
-a mini scrapper (no gui, only fetches genres) for mangaupdates.com for use with ComicRack
+A mini scraper (no gui, only fetches genres) for mangaupdates.com for use with ComicRack. It can be wrong, because if the series doesn't match, it will take the first item from the search results. A couple of other fields are already wired, just requires editing the source file by uncommenting some lines.
 
 ----
 
